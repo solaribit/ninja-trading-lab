@@ -2,6 +2,8 @@
 
 ![Plugin Banner](https://raw.githubusercontent.com/solaribit/ninja-trading-lab/refs/heads/main/ai-ninja-logo-350pxX80px.png)
 
+Stand Alone HTML Version Available Here: ![https://github.com/solaribit/ninja-trading-lab-html/tree/main](https://github.com/solaribit/ninja-trading-lab-html/tree/main)
+
 ## Description
 
 Ninja Trading Bot Lab is a powerful WordPress plugin that embeds an interactive trading compounding projection calculator on your site. Users can input bot assumptions, view 12- and 24-month projections with top-ups, and see real-time currency conversions using live exchange rates from ExchangeRate-API.
