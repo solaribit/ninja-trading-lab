@@ -1,6 +1,6 @@
 # Ninja Trading Bot Lab - WordPress Plugin
 
-![Plugin Banner](https://via.placeholder.com/1280x400?text=Ninja+Trading+Bot+Lab) <!-- Replace with actual banner if available -->
+![Plugin Banner](https://raw.githubusercontent.com/solaribit/ninja-trading-lab/refs/heads/main/ai-ninja-logo-350pxX80px.png)
 
 ## Description
 
