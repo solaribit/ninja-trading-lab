@@ -45,7 +45,7 @@ Create a new page, add `[trading_lab]`, and publish. Users can interact immediat
 ## Screenshots
 
 1. **Full Calculator View**  
-   ![Calculator Screenshot](https://via.placeholder.com/800x600?text=Full+Calculator+View) <!-- Replace with actual screenshot -->
+   ![Calculator Screenshot](https://raw.githubusercontent.com/solaribit/ninja-trading-lab/refs/heads/main/assets/wp-trading-helper.png) <!-- Replace with actual screenshot -->
 
 2. **Mobile Responsive**  
    ![Mobile View](https://via.placeholder.com/400x800?text=Mobile+View)
