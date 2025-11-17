@@ -1,0 +1,15 @@
+# WordPress generated files
+*.log
+/wp-config.php
+/wp-content/uploads/
+/wp-content/cache/
+/wp-content/upgrade/
+/wp-content/backups/
+
+# IDE / editor files
+.idea/
+*.sublime-*
+*.code-workspace
+
+# OS files
+.DS_Store
