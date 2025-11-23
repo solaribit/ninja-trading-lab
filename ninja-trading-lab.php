@@ -362,7 +362,7 @@ class Ninja_Trading_Lab {
                 if (cached) {
                     rates = cached;
                     const hoursAgo = ((Date.now() - lastUpdate) / 3600000).toFixed(1);
-                    rateInfo.textContent = `Rates cached \${hoursAgo}h ago`;
+                    rateInfo.textContent = `Rates cached ${hoursAgo}h ago`;
                     updateLiveRate();
                     return;
                 }
@@ -378,7 +378,7 @@ class Ninja_Trading_Lab {
                     rates.USD = 1;
                     
                     saveCache(rates);
-                    rateInfo.textContent = `Live rates @ \${new Date().toLocaleTimeString()}`;
+                    rateInfo.textContent = `Live rates @ ${new Date().toLocaleTimeString()}`;
                     updateLiveRate();
                 } catch (e) {
                     console.error('Rate fetch failed', e);
@@ -395,7 +395,7 @@ class Ninja_Trading_Lab {
                     return;
                 }
                 const rate = rates[baseCurrency].toFixed(4);
-                liveRate.textContent = `1 USD = \${SYMBOLS[baseCurrency]}\${rate}`;
+                liveRate.textContent = `1 USD = ${SYMBOLS[baseCurrency]}${rate}`;
             }
 
             function getInputsInBase() {
@@ -479,7 +479,7 @@ class Ninja_Trading_Lab {
                         scales: { x: { title: { display: true, text: 'Day' }}, y: { ticks: { callback: formatMoney }}}
                     }
                 });
-                document.getElementById('chartInfo').textContent = `Simulated for \${days} days`;
+                document.getElementById('chartInfo').textContent = `Simulated for ${days} days`;
             }
 
             let debounceTimer;
