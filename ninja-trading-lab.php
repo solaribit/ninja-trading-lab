@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Ninja Trading Bot Lab
  * Description: Interactive compounding calculator. Shortcode: [trading_lab]
- * Version: 1.0.3
+ * Version: 1.0.4
  * Author: Ninja Trading Bot Lab
  */
 
