@@ -2,28 +2,35 @@
 /**
  * Plugin Name: Ninja Trading Bot Lab
  * Description: Interactive compounding calculator. Shortcode: [trading_lab]
- * Version: 1.0.1
+ * Version: 1.0.3
  * Author: Ninja Trading Bot Lab
  */
 
 if (!defined('ABSPATH')) exit;
 
 class Ninja_Trading_Lab {
+    private $assets_enqueued = false;
+
     public function __construct() {
         add_shortcode('trading_lab', [$this, 'render']);
-        add_action('wp_enqueue_scripts', [$this, 'enqueue']);
     }
 
-    public function enqueue() {
-        if (is_admin()) return;
-        if (!has_shortcode(get_post()->post_content, 'trading_lab') && !is_singular()) return;
+    private function enqueue_assets() {
+        if ($this->assets_enqueued || is_admin()) return;
 
-        wp_enqueue_script('chart-js', 'https://cdn.jsdelivr.net/npm/chart.js', [], null, true);
-        wp_add_inline_style('wp-block-library', $this->get_css()); // Hijack core style (safe, always loads)
+        $chart_src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js';
+        wp_enqueue_script('chart-js', $chart_src, [], '4.4.4', true);
+        wp_register_style('ninja-trading-lab', false, [], null);
+        wp_enqueue_style('ninja-trading-lab');
+        wp_add_inline_style('ninja-trading-lab', $this->get_css());
         wp_add_inline_script('chart-js', $this->get_js(), 'after');
+
+        $this->assets_enqueued = true;
     }
 
     public function render() {
+        $this->enqueue_assets();
+
         ob_start(); ?>
         <div class="ninja-trading-lab">
             <?php include plugin_dir_path(__FILE__) . 'template.php'; ?>
@@ -257,13 +264,14 @@ class Ninja_Trading_Lab {
 
     // ... paste your full working JS from previous version here ...
 
-private function get_inline_js() {
-        return "
+    private function get_inline_js() {
+        return <<<'JS'
         document.addEventListener('DOMContentLoaded', function() {
             const CACHE_KEY = 'fx_rates_cache';
             const CACHE_TTL = 12 * 60 * 60 * 1000;
             const SUPPORTED = ['ZAR', 'USD', 'GBP', 'EUR'];
             const SYMBOLS = { ZAR: 'R', USD: '$', GBP: '£', EUR: '€' };
+            const BASE_RATES_URL = 'https://open.er-api.com/v6/latest/USD';
 
             const currencySelect = document.getElementById('currency');
             const startInput = document.getElementById('start');
@@ -278,8 +286,8 @@ private function get_inline_js() {
             let lastUpdate = 0;
             let internalUSD = 100;
             let internalTopupUSD = 10;
-            
-            
+
+
             let apiKey = localStorage.getItem('er_apikey') || '';
             const apiKeyInput = document.getElementById('apiKey');
             if (apiKeyInput) {
@@ -290,10 +298,11 @@ private function get_inline_js() {
                     fetchRates();
                 });
             }
-            
-            const url = apiKey 
-                ? `https://open.er-api.com/v6/latest/USD?apikey=${apiKey}`
-                : 'https://open.er-api.com/v6/latest/USD';
+
+            const buildRatesUrl = (key) => {
+                const trimmed = (key || '').trim();
+                return trimmed ? `${BASE_RATES_URL}?apikey=${encodeURIComponent(trimmed)}` : BASE_RATES_URL;
+            };
 
 
             function toInternal(amount, from) { return rates[from] ? amount / rates[from] : amount; }
@@ -333,8 +342,13 @@ private function get_inline_js() {
             function loadCache() {
                 const cached = localStorage.getItem(CACHE_KEY);
                 if (!cached) return null;
-                const { data, ts } = JSON.parse(cached);
-                if (Date.now() - ts < CACHE_TTL) { lastUpdate = ts; return data; }
+                try {
+                    const { data, ts } = JSON.parse(cached);
+                    if (Date.now() - ts < CACHE_TTL) { lastUpdate = ts; return data; }
+                } catch (err) {
+                    console.warn('Ignoring corrupt rate cache', err);
+                    localStorage.removeItem(CACHE_KEY);
+                }
                 return null;
             }
             function saveCache(data) {
@@ -348,15 +362,14 @@ private function get_inline_js() {
                 if (cached) {
                     rates = cached;
                     const hoursAgo = ((Date.now() - lastUpdate) / 3600000).toFixed(1);
-                    rateInfo.textContent = `Rates cached \${hoursAgo}h ago`;
+                    rateInfo.textContent = `Rates cached ${hoursAgo}h ago`;
                     updateLiveRate();
                     return;
                 }
                 try {
                     rateInfo.textContent = 'Fetching live rates…';
                     liveRate.textContent = '';
-                    const url = 'https://open.er-api.com/v6/latest/USD';
-                    const res = await fetch(url);
+                    const res = await fetch(buildRatesUrl(apiKey));
                     if (!res.ok) throw new Error(`HTTP \${res.status}`);
                     const json = await res.json();
                     if (json.result !== 'success') throw new Error(json['error-type'] || 'API error');
@@ -365,7 +378,7 @@ private function get_inline_js() {
                     rates.USD = 1;
                     
                     saveCache(rates);
-                    rateInfo.textContent = `Live rates @ \${new Date().toLocaleTimeString()}`;
+                    rateInfo.textContent = `Live rates @ ${new Date().toLocaleTimeString()}`;
                     updateLiveRate();
                 } catch (e) {
                     console.error('Rate fetch failed', e);
@@ -382,7 +395,7 @@ private function get_inline_js() {
                     return;
                 }
                 const rate = rates[baseCurrency].toFixed(4);
-                liveRate.textContent = `1 USD = \${SYMBOLS[baseCurrency]}\${rate}`;
+                liveRate.textContent = `1 USD = ${SYMBOLS[baseCurrency]}${rate}`;
             }
 
             function getInputsInBase() {
@@ -466,7 +479,7 @@ private function get_inline_js() {
                         scales: { x: { title: { display: true, text: 'Day' }}, y: { ticks: { callback: formatMoney }}}
                     }
                 });
-                document.getElementById('chartInfo').textContent = `Simulated for \${days} days`;
+                document.getElementById('chartInfo').textContent = `Simulated for ${days} days`;
             }
 
             let debounceTimer;
@@ -502,7 +515,7 @@ private function get_inline_js() {
                 updateSymbols(); updateLiveRate(); updateAllProjections();
             })();
         });
-        ";
+JS;
     }
 }
 new Ninja_Trading_Lab();
