@@ -109,6 +109,7 @@ class Ninja_Trading_Lab {
     letter-spacing: .03em !important;
     flex: 1 !important;
     min-width: 0 !important;
+    color: white !important;
 }
 
 .ninja-trading-lab .logo-pill {
